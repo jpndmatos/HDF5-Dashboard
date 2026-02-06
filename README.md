@@ -1,4 +1,4 @@
-# Task2 - Visualizing HDF5 Data
+Visualizing HDF5 Data
 
 This project visualizes HDF5 data using a Python Flask backend and a JavaScript frontend with Plotly for charting.
 
