@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+:root {
+    --primary-color: #1976D2;
+    --primary-light: #2196F3;
+    --primary-dark: #1565C0;
+    --background-light: linear-gradient(135deg, #f0f8ff, #fff0f5);
+    --background-dark: linear-gradient(135deg, #2c3e50, #34495e);
+    --text-light: #333;
+    --text-dark: #ecf0f1;
+    --border-radius: 12px;
+    --spacing: 20px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: var(--spacing);
+    height: 100vh;
+    background: var(--background-light);
+    color: var(--text-light);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.app-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+    height: 100%;
+}
+
+header {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: var(--primary-color);
+    padding: var(--spacing);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(10px);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+h1 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 24px;
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+}
+
+button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+    flex: 1;
+    overflow: hidden;
+}
+
+.chart-wrapper {
+    flex: 1;
+    min-height: 0;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+}
+
+.chart-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background: rgba(40, 46, 53, 0.95);
+    color: var(--text-dark);
+}
+
+body.dark-mode header {
+    background-color: rgba(40, 46, 53, 0.95);
+    color: var(--text-dark);
+}
+
+body.dark-mode .chart-wrapper {
+    background-color: #34495e;
+}
+
+body.dark-mode button {
+    background-color: #3498db;
+}
+
+body.dark-mode button:hover {
+    background-color: #2980b9;
+}
+
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.theme-switch {
+    display: inline-block;
+    height: 34px;
+    position: relative;
+    width: 60px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+}
+
+.slider:before {
+    background-color: #fff;
+    bottom: 4px;
+    content: "";
+    height: 26px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 26px;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.slider .sun,
+.slider .moon {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 7px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1;
+}
+
+.slider .sun {
+    left: 7px;
+}
+
+.slider .moon {
+    right: 7px;
+}
+
+input:checked + .slider .sun {
+    opacity: 1;
+}
+
+input:checked + .slider .moon {
+    opacity: 0;
+}
+
+input:not(:checked) + .slider .sun {
+    opacity: 0;
+}
+
+input:not(:checked) + .slider .moon {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    :root {
+        --spacing: 10px;
+    }
+
+    body {
+        padding: var(--spacing);
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .controls {
+        margin-top: 12px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    button {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
