@@ -1,12 +1,11 @@
-from flask import Flask, jsonify, request, current_app
-import hdf5_read as reader
+from pathlib import Path
+from flask import Flask, jsonify
+from . import hdf5_read as reader
 
 app = Flask(__name__)
 
-@app.route("/")
-def hello_world():
-    read_result = reader.read_file("data.hdf5")
-    json_result = reader.result_to_json(read_result)
-    response = jsonify(json_result)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+@app.get('/')
+def sensor_data():
+    response = jsonify(reader.read_file(Path(__file__).with_name('data.hdf5')))
+    response.headers['Access-Control-Allow-Origin'] = '*'
     return response

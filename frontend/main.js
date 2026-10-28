@@ -1,64 +1,35 @@
 import Plotly from 'plotly.js-dist';
-import { createTempHumidityChart, createHeatmap } from './chart.js';
-
-const apiEndpoint = 'http://127.0.0.1:5000';
-
-async function fetchData() {
-    try {
-        const response = await fetch(apiEndpoint);
-        if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
-        const text = await response.text();
-        return JSON.parse(JSON.parse(text));
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        return null; 
-    }
+import {createTempHumidityChart,createHeatmap} from './chart.js';
+import {prepareData} from './data.js';
+let current;
+const status=document.getElementById('status');
+const summary=document.getElementById('dataset-summary');
+const reset=document.getElementById('zoomReset');
+const theme=document.getElementById('checkbox');
+theme.checked=document.documentElement.dataset.mode==='dark';
+async function render() {
+ if(!current) return;
+ await Promise.all([createTempHumidityChart('temp-humidity-chart',current),createHeatmap('heatmap-chart',current)]);
 }
-
-function updateCharts(data, isDarkMode) {
-    // prepare data for temperature and humidity chart
-    const electricalSensorsData = {
-        timestamps: data.electrical_sensors[0].map((_, i) => i),
-        temperature: data.electrical_sensors[0].map(pair => pair[0]),
-        humidity: data.electrical_sensors[1].map(pair => pair[0])
-    };
-
-    // prepare data for heatmap chart
-    const heatmapData = {
-        timestamps: electricalSensorsData.timestamps,
-        distancePoints: Array.from({ length: data.results[0][0].length }, (_, i) => i),
-        values: data.results[0].map((_, colIndex) => data.results[0].map(row => row[colIndex]))
-    };
-
-    createTempHumidityChart('temp-humidity-chart', electricalSensorsData, 'Temperature & Humidity', isDarkMode);
-    createHeatmap('heatmap-chart', heatmapData, 'Temperature Distribution', isDarkMode);
-}
-
-function toggleDarkMode() {
-    const isDarkMode = document.body.classList.toggle('dark-mode');
-    document.getElementById('checkbox').checked = isDarkMode;
-    updateCharts(window.currentData, isDarkMode);
-}
-
-function resetZoom() {
-    Plotly.relayout('temp-humidity-chart', {'xaxis.autorange': true, 'yaxis.autorange': true, 'yaxis2.autorange': true});
-    Plotly.relayout('heatmap-chart', {'xaxis.autorange': true, 'yaxis.autorange': true});
-}
-
-async function main() {
-    const data = await fetchData();
-    if (data && data.electrical_sensors && data.results) {
-        window.currentData = data;
-        updateCharts(data, false);
-    } else {
-        console.error('Data structure is not as expected. Received:', data);
-    }
-}
-
-// initialize application and set up event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    main();
-    document.getElementById('checkbox').addEventListener('change', toggleDarkMode);
-    document.getElementById('zoomReset').addEventListener('click', resetZoom);
-    window.addEventListener('resize', () => window.currentData && updateCharts(window.currentData, document.body.classList.contains('dark-mode')));
+theme.addEventListener('change',()=>{
+ const mode=theme.checked?'dark':'light';document.documentElement.dataset.mode=mode;
+ try {localStorage.setItem('hdf5-theme',mode);}catch{}
+ render();
 });
+reset.addEventListener('click',()=>{
+ if(!current)return;
+ Plotly.relayout('temp-humidity-chart',{'xaxis.autorange':true,'yaxis.autorange':true,'xaxis2.autorange':true,'yaxis2.autorange':true});
+ Plotly.relayout('heatmap-chart',{'xaxis.autorange':true,'yaxis.autorange':true});
+});
+let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(render,150)});
+async function main(){
+ try {
+  const response=await fetch(import.meta.env.VITE_API_URL || '/api/');
+  if(!response.ok)throw new Error('Sensor data is unavailable.');
+  let data=await response.json();if(typeof data==='string')data=JSON.parse(data);
+  current=prepareData(data);await render();reset.disabled=false;
+  summary.textContent=`${current.timestamps.length} time samples / ${current.distancePoints.length} sensor positions`;
+  status.textContent=`Recording: ${new Date(current.recorded[0]*1000).toLocaleDateString('en-GB',{timeZone:'UTC'})}`;
+ }catch(error){status.textContent='Unable to load data';summary.textContent='Start the Flask API, then reload this page.';console.error(error);}
+}
+main();

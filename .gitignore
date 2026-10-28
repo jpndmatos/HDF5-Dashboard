@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.venv/
+api/env/
+__pycache__/
+.hallmark/
+.env

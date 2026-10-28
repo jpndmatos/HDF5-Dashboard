@@ -1,108 +1,18 @@
 import Plotly from 'plotly.js-dist';
-
-const config = {
-    responsive: true,
-    useResizeHandler: true,
-    autosize: true
-};
-
-function getLayoutColors(isDarkMode) {
-    return {
-        bgcolor: isDarkMode ? 'rgba(40, 46, 53, 0.95)' : 'rgba(255, 255, 255, 0.8)',
-        gridcolor: '#e6e6e6',
-        linecolor: isDarkMode ? '#fff' : '#000',
-        zerolinecolor: isDarkMode ? '#fff' : '#000',
-    };
+const config = {responsive:true,displaylogo:false,displayModeBar:false,scrollZoom:false};
+function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function layout() {
+ const axis={gridcolor:token('--rule'),zeroline:false,tickfont:{size:11,color:token('--muted')},automargin:true};
+ return {font:{family:token('--font-body'),size:12,color:token('--ink')},paper_bgcolor:token('--surface'),plot_bgcolor:token('--surface'),margin:{l:60,r:32,t:40,b:56},autosize:true,xaxis:{...axis,title:{text:'Elapsed time (s)',font:{size:11}}},yaxis:{...axis},dragmode:'zoom',hoverlabel:{bgcolor:token('--surface'),font:{color:token('--ink'),family:token('--font-body')}}};
 }
-
-function createLayout(title, isDarkMode) {
-    const colors = getLayoutColors(isDarkMode);
-    return {
-        font: {
-            family: 'Poppins, sans-serif',
-            color: isDarkMode ? '#ecf0f1' : '#333'
-        },
-        autosize: true,
-        margin: { l: 60, r: 60, b: 80, t: 60, pad: 4 },
-        paper_bgcolor: colors.bgcolor,
-        plot_bgcolor: colors.bgcolor,
-        title: {
-            text: title,
-            y: 0.94,
-            yanchor: 'top'
-        },
-        xaxis: {
-            gridcolor: colors.gridcolor,
-            linecolor: colors.linecolor,
-            zerolinecolor: colors.zerolinecolor,
-        },
-        yaxis: {
-            gridcolor: colors.gridcolor,
-            linecolor: colors.linecolor,
-            zerolinecolor: colors.zerolinecolor,
-        }
-    };
+export function createTempHumidityChart(element,data) {
+ const mobile=matchMedia('(max-width:700px)').matches;
+ const base=layout();
+ const trace1={x:data.timestamps,y:data.temperature,type:'scatter',mode:'lines',name:'Temperature',line:{color:token('--temperature'),width:2},hovertemplate:'%{y:.2f} °C<br>%{x:.1f} s<extra>Temperature</extra>'};
+ const trace2={x:data.timestamps,y:data.humidity,type:'scatter',mode:'lines',name:'Humidity',xaxis:'x2',yaxis:'y2',line:{color:token('--humidity'),width:2},hovertemplate:'%{y:.2f}%<br>%{x:.1f} s<extra>Humidity</extra>'};
+ return Plotly.react(element,[trace1,trace2],{...base,showlegend:false,xaxis:{...base.xaxis,domain:mobile?[0,1]:[0,.42],anchor:'y'},xaxis2:{...base.xaxis,domain:mobile?[0,1]:[.58,1],anchor:'y2'},yaxis:{...base.yaxis,title:{text:'Temperature (°C)',font:{size:11}},domain:mobile?[.61,1]:[0,1]},yaxis2:{...base.yaxis,title:{text:'Humidity (%)',font:{size:11}},domain:mobile?[0,.39]:[0,1],anchor:'x2'},uirevision:'sensor-recording'},config);
 }
-
-export function createTempHumidityChart(element, data, title, isDarkMode) {
-    // create temperature and humidity line chart
-    const trace1 = {
-        x: data.timestamps,
-        y: data.temperature,
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Temperature',
-        line: { color: isDarkMode ? '#ff6b6b' : '#d63031' }
-    };
-    const trace2 = {
-        x: data.timestamps,
-        y: data.humidity,
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Humidity',
-        yaxis: 'y2',
-        line: { color: isDarkMode ? '#74b9ff' : '#0984e3' }
-    };
-    const layout = {
-        ...createLayout(title, isDarkMode),
-        xaxis: { title: 'Time (seconds)', automargin: true },
-        yaxis: { title: 'Temperature (°C)', automargin: true },
-        yaxis2: {
-            title: 'Humidity (%)',
-            overlaying: 'y',
-            side: 'right',
-            automargin: true
-        },
-        showlegend: true,
-        legend: { orientation: 'h', y: -0.2, yanchor: 'top' }
-    };
-
-    Plotly.newPlot(element, [trace1, trace2], layout, config);
-}
-
-export function createHeatmap(element, data, title, isDarkMode) {
-    // create temperature distribution heatmap
-    const layout = {
-        ...createLayout(title, isDarkMode),
-        xaxis: { title: 'Time (seconds)', automargin: true },
-        yaxis: { title: 'Sensor Position', autorange: 'reversed', automargin: true },
-    };
-    const heatmapData = [{
-        z: data.values,
-        x: data.timestamps,
-        y: data.distancePoints,
-        type: 'heatmap',
-        colorscale: 'Viridis',
-        colorbar: {
-            title: 'Temperature (°C)',
-            titleside: 'right',
-            thickness: 20,
-            len: 0.9,
-            y: 0.5,
-            yanchor: 'middle'
-        },
-        zsmooth: 'best'
-    }];
-
-    Plotly.newPlot(element, heatmapData, layout, config);
+export function createHeatmap(element,data) {
+ const base=layout();
+ return Plotly.react(element,[{z:data.values,x:data.timestamps,y:data.distancePoints,type:'heatmap',colorscale:[[0,token('--heat-low')],[.5,token('--heat-mid')],[1,token('--heat-high')]],zsmooth:false,colorbar:{title:{text:'°C',side:'top'},thickness:12,len:.9,tickfont:{size:10},outlinewidth:0},hovertemplate:'Position %{y}<br>%{x:.1f} s<br>%{z:.2f} °C<extra></extra>'}],{...base,margin:{l:60,r:44,t:16,b:56},yaxis:{...base.yaxis,title:{text:'Sensor position',font:{size:11}},autorange:'reversed'},uirevision:'sensor-recording'},config);
 }
