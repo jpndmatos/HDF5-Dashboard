@@ -1,6 +1,6 @@
-<h1><picture><source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg"><img src="docs/logo.svg" alt="HDF5 Dashboard" width="380" height="64"></picture></h1>
+# HDF5 Dashboard
 
-A dashboard for viewing temperature and humidity recordings from an HDF5 file. Flask reads the datasets; the frontend plots the electrical sensors and temperature across the full sensor length.
+View temperature and humidity readings from an HDF5 recording. The dashboard has time-series charts and a heatmap showing how temperature changes along the sensor.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/dark.jpg">
@@ -18,7 +18,7 @@ A dashboard for viewing temperature and humidity recordings from an HDF5 file. F
 - Separate temperature and humidity plots with recorded elapsed time.
 - Temperature heatmap across every position in the dataset.
 - Chart zoom, hover values, and reset controls.
-- Responsive layout, Poppins typography, and saved light or dark mode.
+- Mobile layout and saved light or dark mode.
 
 The included `api/data.hdf5` recording has 11 time samples and 901 sensor positions. Screenshots show this file.
 
