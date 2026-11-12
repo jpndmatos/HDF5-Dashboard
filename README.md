@@ -15,5 +15,3 @@ npm start
 ```
 
 Open http://localhost:5173. Includes an HDF5 recording with 11 time samples and 901 sensor positions. Flask runs on port 5008.
-
-Flask · h5py · NumPy · Plotly · Vite. [Development notes](docs/development.md).
