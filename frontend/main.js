@@ -1,10 +1,17 @@
 import Plotly from 'plotly.js-dist';
 import {createTempHumidityChart,createHeatmap} from './chart.js';
-import {prepareData} from './data.js';
+import {prepareData,sensorCsv} from './data.js';
 let current;
 const status=document.getElementById('status');
 const summary=document.getElementById('dataset-summary');
 const reset=document.getElementById('zoomReset');
+const exportButton=document.getElementById('exportCsv');
+exportButton.addEventListener('click',()=>{
+ if(!current)return;
+ const url=URL.createObjectURL(new Blob([sensorCsv(current)],{type:'text/csv;charset=utf-8'}));
+ const link=document.createElement('a');link.href=url;link.download='sensor-recording.csv';link.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
 const theme=document.getElementById('checkbox');
 theme.checked=document.documentElement.dataset.mode==='dark';
 const themeIcon=document.querySelector('.theme-icon');
@@ -34,7 +41,7 @@ async function main(){
   const response=await fetch(import.meta.env.VITE_API_URL || '/api/');
   if(!response.ok)throw new Error('Sensor data is unavailable.');
   let data=await response.json();if(typeof data==='string')data=JSON.parse(data);
-  current=prepareData(data);await render();reset.disabled=false;
+  current=prepareData(data);await render();reset.disabled=false;exportButton.disabled=false;
   summary.textContent=`${current.timestamps.length} time samples / ${current.distancePoints.length} sensor positions`;
   status.textContent=`Recording: ${new Date(current.recorded[0]*1000).toLocaleDateString('en-GB',{timeZone:'UTC'})}`;
  }catch(error){status.textContent='Unable to load data';summary.textContent='Start the Flask API, then reload this page.';console.error(error);}

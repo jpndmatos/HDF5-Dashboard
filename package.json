@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "setup:api": "python -m venv .venv && .venv\\Scripts\\python -m pip install -r api/requirements.txt",
-    "start:api": ".venv\\Scripts\\python -m flask --app api.main run --port 5008",
+    "setup:api": "node scripts/api.mjs --setup",
+    "start:api": "node scripts/api.mjs",
     "start:frontend": "vite",
     "start": "concurrently \"npm run start:api\" \"npm run start:frontend\"",
     "build": "vite build",

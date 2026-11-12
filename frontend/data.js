@@ -11,3 +11,15 @@ export function prepareData(data) {
     const values = Array.from({length:positions}, (_, position) => rows.map(row => row[position]));
     return {timestamps,temperature,humidity,values,distancePoints:Array.from({length:positions},(_,i)=>i),recorded};
 }
+
+// One row per recorded sample; sensor columns retain their original positions.
+export function sensorCsv(data) {
+  const cell = value => '"' + String(value).replaceAll('"', '""') + '"';
+  return [
+    ['Recorded (UTC)', 'Elapsed (s)', 'Temperature', 'Humidity', ...data.distancePoints.map(p => `Position ${p}`)],
+    ...data.timestamps.map((elapsed, i) => [
+      new Date(data.recorded[i] * 1000).toISOString(), elapsed,
+      data.temperature[i], data.humidity[i], ...data.values.map(row => row[i]),
+    ]),
+  ].map(row => row.map(cell).join(',')).join('\r\n');
+}
